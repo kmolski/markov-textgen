@@ -1,10 +1,6 @@
 from collections import Counter
 from random import choices
-
-
-def frequencies(elems):
-    length = len(elems)
-    return {key: count / length for key, count in Counter(elems).items()}
+import re
 
 
 class Node:
@@ -24,19 +20,37 @@ class Node:
         return result
 
 
-pizzas = Node("pizzas", [])
-hamburgers = Node("hamburgers", [])
-hot_dogs = Node("hot dogs", [])
+with open("dr_jekyll_and_mr_hyde.txt", "r") as input_file:
+    text = input_file.read()
 
-pizzas.arrows = [(hot_dogs, 0.7), (hamburgers, 0.3)]
-hamburgers.arrows = [(hamburgers, 0.2), (pizzas, 0.6), (hot_dogs, 0.2)]
-hot_dogs.arrows = [(hot_dogs, 0.5), (hamburgers, 0.5)]
+non_word_chars = re.compile(r"\W")
+words = [word.lower() for word in text.split()]
 
-sample_of_10 = hamburgers.walk(10)
-print("sample of 10: ", frequencies(sample_of_10))
+current_word = words[0]
+graph = {words[0]: {}}
 
-sample_of_1000 = hamburgers.walk(1000)
-print("sample of 1000: ", frequencies(sample_of_1000))
+for next_word in words[1:]:
+    if next_word not in graph[current_word]:
+        graph[current_word][next_word] = 0
+    graph[current_word][next_word] += 1
+    current_word = next_word
+    if current_word not in graph:
+        graph[current_word] = {}
 
-sample_of_1000000 = hamburgers.walk(1000000)
-print("sample of 1000000: ", frequencies(sample_of_1000000))
+nodes = {}
+for word in graph:
+    nodes[word] = Node(word, [])
+
+for word, arrows in graph.items():
+    total_edges = sum(edge_count for edge_count in arrows.values())
+    nodes[word].arrows = [
+        (nodes[w], count / total_edges) for w, count in arrows.items()
+    ]
+
+
+def frequencies(elems):
+    length = len(elems)
+    return {key: count / length for key, count in Counter(elems).items()}
+
+
+print(" ".join(n.name for n in nodes["i"].walk(20)))
