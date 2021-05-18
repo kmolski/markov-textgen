@@ -4,28 +4,45 @@ from random import choice, choices
 import re
 
 
-def model_from_str(string, order=2, **format_options):
+def model_from_str(string, order=2, normalize_case=True, remove_non_word_chars=True):
     """Generate a Markov text model from a string."""
-    return model_from_words(string.split(), order=order, **format_options)
-
-
-def model_from_file(file_name, order=2, **format_options):
-    """Generate a Markov text model from an input file."""
-    with open(file_name, "r") as input_file:
-        return model_from_lines(input_file, order=order, **format_options)
-
-
-def model_from_lines(lines, order=2, **format_options):
-    """Generate a Markov text model from an iterable of lines (strings)."""
     return model_from_words(
-        chain.from_iterable(l.split() for l in lines), order=order, **format_options
+        string.split(),
+        order=order,
+        normalize_case=normalize_case,
+        remove_non_word_chars=remove_non_word_chars,
     )
 
 
-def model_from_words(words, order=2, **format_options):
+def model_from_file(filename, order=2, normalize_case=True, remove_non_word_chars=True):
+    """Generate a Markov text model from an input file."""
+    with open(filename, "r") as input_file:
+        return model_from_lines(
+            input_file,
+            order=order,
+            normalize_case=normalize_case,
+            remove_non_word_chars=remove_non_word_chars,
+        )
+
+
+def model_from_lines(lines, order=2, normalize_case=True, remove_non_word_chars=True):
+    """Generate a Markov text model from an iterable of lines (strings)."""
+    return model_from_words(
+        chain.from_iterable(l.split() for l in lines),
+        order=order,
+        normalize_case=normalize_case,
+        remove_non_word_chars=remove_non_word_chars,
+    )
+
+
+def model_from_words(words, order=2, normalize_case=True, remove_non_word_chars=True):
     """Generate a Markov text model from an iterable of words (strings)."""
     model = Model(order)
-    model.add_words(words, **format_options)
+    model.add_words(
+        words,
+        normalize_case=normalize_case,
+        remove_non_word_chars=remove_non_word_chars,
+    )
     return model
 
 
