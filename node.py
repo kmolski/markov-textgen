@@ -1,30 +1,38 @@
+"""A Markov chain-based text generation script."""
 from itertools import chain, islice
 from random import choice, choices
 import re
 
 
 def model_from_str(string, order=2, **format_options):
+    """Generate a Markov text model from a string."""
     return model_from_words(string.split(), order=order, **format_options)
 
 
 def model_from_file(file_name, order=2, **format_options):
+    """Generate a Markov text model from an input file."""
     with open(file_name, "r") as input_file:
         return model_from_lines(input_file, order=order, **format_options)
 
 
 def model_from_lines(lines, order=2, **format_options):
+    """Generate a Markov text model from an iterable of lines (strings)."""
     return model_from_words(
         chain.from_iterable(l.split() for l in lines), order=order, **format_options
     )
 
 
 def model_from_words(words, order=2, **format_options):
+    """Generate a Markov text model from an iterable of words (strings)."""
     model = Model(order)
     model.add_words(words, **format_options)
     return model
 
 
 class Model:
+    """The Markov chain representation that contains its nodes and provides
+    methods for adding new words/randomly walking the structure."""
+
     __NON_WORD_CHARS = re.compile(r"\W")
 
     def __init__(self, order):
@@ -73,6 +81,10 @@ class Model:
 
 
 class Node:
+    """The representation of a Markov chain node, which contains the 'name', or the
+    word that the node represents, and a list of arrows to other nodes, grouped by
+    the prefixes of the 'name' in the source text."""
+
     def __init__(self, name, arrows):
         self.name = name
         self.arrows = arrows
