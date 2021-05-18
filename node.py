@@ -4,7 +4,7 @@ import re
 
 
 def model_from_str(string, order=2, **format_options):
-    return model_from_lines(string.splitlines(), order=order, **format_options)
+    return model_from_words(string.split(), order=order, **format_options)
 
 
 def model_from_file(file_name, order=2, **format_options):
@@ -13,8 +13,14 @@ def model_from_file(file_name, order=2, **format_options):
 
 
 def model_from_lines(lines, order=2, **format_options):
+    return model_from_words(
+        chain.from_iterable(l.split() for l in lines), order=order, **format_options
+    )
+
+
+def model_from_words(words, order=2, **format_options):
     model = Model(order)
-    model.add_phrases_from_lines(lines, **format_options)
+    model.add_words(words, **format_options)
     return model
 
 
@@ -25,9 +31,7 @@ class Model:
         self.order = order
         self.nodes = {}
 
-    def add_phrase_from_words(
-        self, words, normalize_case=True, remove_non_word_chars=True
-    ):
+    def add_words(self, words, normalize_case=True, remove_non_word_chars=True):
         def word_processor(word):
             result = word.strip()
             if normalize_case:
@@ -47,11 +51,6 @@ class Model:
             prefix.append(current_word)
             prefix.pop(0)
             current_word = next_word
-
-    def add_phrases_from_lines(self, lines, **word_processor_options):
-        self.add_phrase_from_words(
-            chain.from_iterable(l.split() for l in lines), **word_processor_options
-        )
 
     def walk(self, steps, init_word=None):
         if init_word is None:
