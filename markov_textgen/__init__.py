@@ -2,11 +2,11 @@
 from collections.abc import Iterable
 from itertools import chain, islice
 from random import choice, choices
-from typing import final, NewType, Optional, Tuple
+from typing import final, Optional, Tuple
 import re
 
-Prefix = NewType("Prefix", Tuple[str, ...])
-WordRef = NewType("WordRef", dict[str, int])
+Prefix = Tuple[str, ...]
+WordRef = dict[str, int]
 
 
 @final
@@ -22,9 +22,9 @@ class Node:
         return self.word
 
     def add_word(self, prefix: list[str], word: str) -> None:
-        prefix = Prefix(tuple(prefix))
+        prefix = tuple(prefix)
         if prefix not in self.arrows:
-            self.arrows[prefix] = WordRef({})
+            self.arrows[prefix] = {}
         if word not in self.arrows[prefix]:
             self.arrows[prefix][word] = 0
         self.arrows[prefix][word] += 1
@@ -77,14 +77,15 @@ class Model:
         else:
             node = self.nodes[init_word]
 
-        init_vector = list(choice(list(node.arrows.keys())))
+        init_vector = choice(list(node.arrows.keys()))
+        prefix = list(init_vector)
         result = [node]
 
         for _ in range(steps):
-            arrows = node.arrows[Prefix(tuple(init_vector))]
+            arrows = node.arrows[tuple(prefix)]
             word = choices(list(arrows.keys()), list(arrows.values()))[0]
-            init_vector.append(node.word)
-            init_vector.pop(0)
+            prefix.append(node.word)
+            prefix.pop(0)
             node = self.nodes[word]
             result.append(node)
 
@@ -130,7 +131,7 @@ def model_from_lines(
 ) -> Model:
     """Generate a Markov text model from an iterable of lines (strings)."""
     return model_from_words(
-        chain.from_iterable(l.split() for l in lines),
+        chain.from_iterable(line.split() for line in lines),
         order=order,
         normalize_case=normalize_case,
         remove_non_word_chars=remove_non_word_chars,
