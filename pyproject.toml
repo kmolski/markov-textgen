@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "markov-textgen"
+version = "0.1.0"
+description = "Markov chain-based text generation script"
+authors = ["kmolski <starfighter413@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b1"
+flake8 = "^3.9.2"
+pylint = "^2.8.2"
+mypy = "^0.812"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
