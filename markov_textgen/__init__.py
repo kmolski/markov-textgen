@@ -17,7 +17,7 @@ class Node:
         self.word = word
         self.arrows = arrows
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.word
 
     def add_word(self, prefix: list[str], word: str) -> None:
@@ -154,7 +154,6 @@ def model_from_words(
 
 jekyll_and_hyde_model = model_from_file(
     "dr_jekyll_and_mr_hyde.txt",
-    order=3,
     normalize_case=False,
     remove_non_word_chars=False,
 )
