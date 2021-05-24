@@ -2,14 +2,13 @@
 from collections.abc import Iterable
 from itertools import chain, islice
 from random import choice, choices
-from typing import final, Optional, Tuple
+from typing import Optional, Tuple
 import re
 
 Prefix = Tuple[str, ...]
 WordRef = dict[str, int]
 
 
-@final
 class Node:
     """The representation of a Markov chain node, which contains the word, and a list
     of arrows to other nodes, grouped by the prefixes of the word in the source text."""
@@ -30,7 +29,6 @@ class Node:
         self.arrows[prefix][word] += 1
 
 
-@final
 class Model:
     """The Markov chain representation that contains its nodes and provides
     methods for adding new words/randomly walking the structure."""
