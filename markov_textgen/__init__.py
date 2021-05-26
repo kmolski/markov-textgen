@@ -56,15 +56,15 @@ class Model:
     def add_words(
         self,
         words: Iterable[str],
-        normalize_case: bool = True,
+        normalise_case: bool = True,
         remove_non_word_chars: bool = True,
     ) -> None:
         """Add an iterable of words (strings) to the model. The words can be processed -
-        they can be normalized to lowercase or have non-word characters removed."""
+        they can be normalised to lowercase or have non-word characters removed."""
 
         def word_processor(word: str) -> str:
             result = word.strip()
-            if normalize_case:
+            if normalise_case:
                 result = result.lower()
             if remove_non_word_chars:
                 result = self.NON_WORD_CHARS.sub("", result)
@@ -138,14 +138,14 @@ class Model:
 def model_from_str(
     string: str,
     order: int = 2,
-    normalize_case: bool = True,
+    normalise_case: bool = True,
     remove_non_word_chars: bool = True,
 ) -> Model:
     """Generate a Markov text model from a string."""
     return model_from_words(
         string.split(),
         order=order,
-        normalize_case=normalize_case,
+        normalise_case=normalise_case,
         remove_non_word_chars=remove_non_word_chars,
     )
 
@@ -153,7 +153,7 @@ def model_from_str(
 def model_from_file(
     filename: str,
     order: int = 2,
-    normalize_case: bool = True,
+    normalise_case: bool = True,
     remove_non_word_chars: bool = True,
 ) -> Model:
     """Generate a Markov text model from an input file."""
@@ -161,7 +161,7 @@ def model_from_file(
         return model_from_lines(
             input_file,
             order=order,
-            normalize_case=normalize_case,
+            normalise_case=normalise_case,
             remove_non_word_chars=remove_non_word_chars,
         )
 
@@ -169,14 +169,14 @@ def model_from_file(
 def model_from_lines(
     lines: Iterable[str],
     order: int = 2,
-    normalize_case: bool = True,
+    normalise_case: bool = True,
     remove_non_word_chars: bool = True,
 ) -> Model:
     """Generate a Markov text model from an iterable of lines (strings)."""
     return model_from_words(
         chain.from_iterable(line.split() for line in lines),
         order=order,
-        normalize_case=normalize_case,
+        normalise_case=normalise_case,
         remove_non_word_chars=remove_non_word_chars,
     )
 
@@ -184,14 +184,14 @@ def model_from_lines(
 def model_from_words(
     words: Iterable[str],
     order: int = 2,
-    normalize_case: bool = True,
+    normalise_case: bool = True,
     remove_non_word_chars: bool = True,
 ) -> Model:
     """Generate a Markov text model from an iterable of words (strings)."""
     model = Model(order)
     model.add_words(
         words,
-        normalize_case=normalize_case,
+        normalise_case=normalise_case,
         remove_non_word_chars=remove_non_word_chars,
     )
     return model
