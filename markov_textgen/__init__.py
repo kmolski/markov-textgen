@@ -34,6 +34,7 @@ class Model:
     methods for adding new words/randomly walking the structure."""
 
     NON_WORD_CHARS = re.compile(r"\W")
+    NON_WORD_PUNCTUATION_CHARS = re.compile(r"[^\w.?!]")
 
     def __init__(self, order: int):
         self.order = order
@@ -88,6 +89,30 @@ class Model:
             result.append(node)
 
         return result
+
+    def generate_string(self, max_words: int, sentences: bool = True) -> str:
+        def is_capitalised(word: str) -> bool:
+            return word[:1].isupper()
+
+        def is_terminal(word: str) -> bool:
+            filtered = self.NON_WORD_PUNCTUATION_CHARS.sub("", word)
+            return bool(filtered) and filtered[-1] in ".?!"
+
+        if sentences:
+            # Start with a capitalised word
+            init_words = [w for w in self.nodes.values() if is_capitalised(w.word)]
+        else:
+            init_words = list(self.nodes.values())
+
+        start = choice(init_words)
+        result = self.walk(max_words, start.word)
+
+        if sentences and any(is_terminal(w.word) for w in result):
+            # Remove words that don't end with punctuation
+            while result and not is_terminal(result[-1].word):
+                result.pop()
+
+        return " ".join(w.word for w in result)
 
 
 def model_from_str(
@@ -153,7 +178,7 @@ def model_from_words(
 
 
 jekyll_and_hyde_model = model_from_file(
-    "dr_jekyll_and_mr_hyde.txt",
+    "../dr_jekyll_and_mr_hyde.txt",
     normalize_case=False,
     remove_non_word_chars=False,
 )
