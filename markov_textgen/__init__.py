@@ -195,10 +195,3 @@ def model_from_words(
         remove_non_word_chars=remove_non_word_chars,
     )
     return model
-
-
-jekyll_and_hyde_model = model_from_file(
-    "../dr_jekyll_and_mr_hyde.txt",
-    normalize_case=False,
-    remove_non_word_chars=False,
-)
