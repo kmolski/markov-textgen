@@ -5,8 +5,15 @@ from random import choice, choices
 from typing import Optional, Tuple
 import re
 
+# Lists cannot be map keys, so the Prefix has to be a tuple
 Prefix = Tuple[str, ...]
+# Mapping from the word to its reference count
 WordRef = dict[str, int]
+
+
+class NoNodeFoundError(ValueError):
+    def __init__(self, word: str):
+        self.word = word
 
 
 class Node:
@@ -15,17 +22,22 @@ class Node:
 
     def __init__(self, word: str, arrows: dict[Prefix, WordRef]):
         self.word = word
+        # Prefix to word reference count mapping
         self.arrows = arrows
 
     def __str__(self) -> str:
         return self.word
 
     def add_word(self, prefix: list[str], word: str) -> None:
+        """Add the following word to the node. For example: given the text "a quick fox",
+        the word 'quick' will be added to node 'a', and 'fox' to node 'quick'."""
         prefix = tuple(prefix)
+
         if prefix not in self.arrows:
             self.arrows[prefix] = {}
         if word not in self.arrows[prefix]:
             self.arrows[prefix][word] = 0
+
         self.arrows[prefix][word] += 1
 
 
@@ -38,6 +50,7 @@ class Model:
 
     def __init__(self, order: int):
         self.order = order
+        # Word to chain Node mapping
         self.nodes: dict[str, Node] = {}
 
     def add_words(
@@ -46,7 +59,8 @@ class Model:
         normalize_case: bool = True,
         remove_non_word_chars: bool = True,
     ) -> None:
-        """Add words to the model."""
+        """Add an iterable of words (strings) to the model. The words can be processed -
+        they can be normalized to lowercase or have non-word characters removed."""
 
         def word_processor(word: str) -> str:
             result = word.strip()
@@ -57,6 +71,7 @@ class Model:
             return result
 
         words = (word_processor(w) for w in words)
+        # `prefix` has to be a list here, since tuples don't support append() and pop()
         prefix = list(islice(words, self.order - 1))
 
         current_word = next(words)
@@ -64,6 +79,7 @@ class Model:
 
         for next_word in words:
             self.nodes[current_word].add_word(prefix, next_word)
+            # pop() comes after append() to avoid errors in Markov chains of order 1
             prefix.append(current_word)
             prefix.pop(0)
             current_word = next_word
@@ -74,9 +90,13 @@ class Model:
         if init_word is None:
             node = choice(list(self.nodes.values()))
         else:
-            node = self.nodes[init_word]
+            try:
+                node = self.nodes[init_word]
+            except IndexError as e:
+                raise NoNodeFoundError(init_word) from e
 
         init_vector = choice(list(node.arrows.keys()))
+        # `prefix` has to be a list here, since tuples don't support append() and pop()
         prefix = list(init_vector)
         result = [node]
 
